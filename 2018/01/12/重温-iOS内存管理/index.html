@@ -1,0 +1,705 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="参考： 唐巧-理解 iOS 的内存管理周小鱼-iOS进阶——iOS（Objective-C） 内存管理&amp;amp;Blockios-内存管理研究
+- 1.为什么需要内存管理？
+- 2.ARC（Automatic Reference Count自动引用计数）的理解
+- 3.alloc、retain、release 、dealloc 的理解
+- 4.assign、weak、strong、copy、ret">
+<meta property="og:type" content="article">
+<meta property="og:title" content="<基础系列一>iOS内存管理">
+<meta property="og:url" content="http://yoursite.com/2018/01/12/重温-iOS内存管理/index.html">
+<meta property="og:site_name" content="Zengyijie’s   Blog">
+<meta property="og:description" content="参考： 唐巧-理解 iOS 的内存管理周小鱼-iOS进阶——iOS（Objective-C） 内存管理&amp;amp;Blockios-内存管理研究
+- 1.为什么需要内存管理？
+- 2.ARC（Automatic Reference Count自动引用计数）的理解
+- 3.alloc、retain、release 、dealloc 的理解
+- 4.assign、weak、strong、copy、ret">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13hfhyj216i0m0tai.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13gackj20f404h3yv.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13hehwj20gn0c63zf.jpg">
+<meta property="og:updated_time" content="2019-01-10T16:17:31.727Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="<基础系列一>iOS内存管理">
+<meta name="twitter:description" content="参考： 唐巧-理解 iOS 的内存管理周小鱼-iOS进阶——iOS（Objective-C） 内存管理&amp;amp;Blockios-内存管理研究
+- 1.为什么需要内存管理？
+- 2.ARC（Automatic Reference Count自动引用计数）的理解
+- 3.alloc、retain、release 、dealloc 的理解
+- 4.assign、weak、strong、copy、ret">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13hfhyj216i0m0tai.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/12/重温-iOS内存管理/"/>
+
+
+
+
+
+  <title> <基础系列一>iOS内存管理 | Zengyijie’s   Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Zengyijie’s   Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">a iOS Developer</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/12/重温-iOS内存管理/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="zengyijie_">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Zengyijie’s   Blog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Zengyijie’s   Blog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                <基础系列一>iOS内存管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-12T00:11:31+08:00">
+                2018-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>参考：<br><a href="https://blog.devtang.com/2016/07/30/ios-memory-management/" target="_blank" rel="external"> 唐巧-理解 iOS 的内存管理</a><br><a href="http://zhoulingyu.com/2017/02/08/iOS%E8%BF%9B%E9%98%B6%E2%80%94%E2%80%94iOS-Memory-Block/" target="_blank" rel="external">周小鱼-iOS进阶——iOS（Objective-C） 内存管理&amp;Block</a><br><a href="https://medium.com/@jasonyuh/ios-内存管理研究-9bf37fc209c6" target="_blank" rel="external">ios-内存管理研究</a></p>
+<pre><code>- 1.为什么需要内存管理？
+- 2.ARC（Automatic Reference Count自动引用计数）的理解
+- 3.alloc、retain、release 、dealloc 的理解
+- 4.assign、weak、strong、copy、retain 这些属性关键词做了什么？
+- 5.关于循环引用
+- 6.关于autorelease
+- 7.关于深拷贝和浅拷贝
+</code></pre><h4 id="1-为什么需要内存管理？"><a href="#1-为什么需要内存管理？" class="headerlink" title="1.为什么需要内存管理？"></a>1.为什么需要内存管理？</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">以我的理解</div><div class="line">1.减少程序占用的运行内存空间，保证程序的稳定运行。比如在iOS中，每一个UIViewController 都会有【- (void)didReceiveMemoryWarning】这么一个方法，</div><div class="line">当该程序运行的内存过高时，那么系统就会调用这个方法，意思是收到内存警告了，需要释放内存。</div><div class="line"></div><div class="line">2.避免程序的崩溃。如果内存管理不当，当你向一个已经销毁了对象发送一个消息（调用方法），</div><div class="line">那么这时可能就会导致程序崩溃，提示找不到方法，因为该对应已经销毁了，向一个空对象（nil）发送信息是不允许的。</div></pre></td></tr></table></figure>
+<h4 id="2-ARC（Automatic-Reference-Count自动引用计数）的理解"><a href="#2-ARC（Automatic-Reference-Count自动引用计数）的理解" class="headerlink" title="2.ARC（Automatic Reference Count自动引用计数）的理解"></a>2.ARC（Automatic Reference Count自动引用计数）的理解</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">简单来说，Objective-C是采用【引用计数】来记录一个对象是否需要销毁。</div><div class="line">    -</div><div class="line">        创建一个对象（A） ，引用计数 = 1</div><div class="line">        （A）被（B）持有 ， （A）的引用计数+1</div><div class="line">        被(B)释放(A)，（A）的引用计数-1</div><div class="line">        直到A的引用计数=0，那么这个对象就被销毁</div><div class="line">        (如图)</div><div class="line">    -</div><div class="line">而ARC则是自动管理【引用计数】，自动帮我们管理内存。</div><div class="line"></div><div class="line">说到ARC，先了解一下MRC,MRC的意思就是手动管理引用计数，要手动管理内存。</div><div class="line">在MRC时代，当你创建（alloc）或 retain 了一个对象后，最后你需要每release一次。</div><div class="line">比如：</div><div class="line">    NSObject *obj = [[NSObject alloc] init]; // 创建了一个对象 引用计数器count + 1</div><div class="line">    [obj retain]; // 引用计数器count + 1</div><div class="line">    // 那么这个时候obj这个对象的引用计数为2</div><div class="line">    // 如果你要把它销毁 ，你需要release两次,如：</div><div class="line">    [obj release];</div><div class="line">    [obj release];</div><div class="line">    // 这个时候obj才销毁</div><div class="line">    // 这就是MRC时候需要写的代码</div><div class="line"></div><div class="line">然而，ARC的出现就简单很多了，绝大部分的对象内存都不需要我们自己手动管理。（ps: 只是大部分）</div><div class="line">如,当我们创建某个对象</div><div class="line">    &#123;    </div><div class="line">        NSObject *obj = [[NSObject alloc] init]; </div><div class="line">        NSObject *obj2 = [[NSObject alloc] init]; </div><div class="line">        obj2 = obj；</div><div class="line">        ...等等</div><div class="line">        // release这些操作我们都不需要写了，有了ARC，系统就会自动管理内存。</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13hfhyj216i0m0tai.jpg" alt="-w765"></p>
+<h4 id="3-alloc、retain、release-、dealloc-的理解"><a href="#3-alloc、retain、release-、dealloc-的理解" class="headerlink" title="3.alloc、retain、release 、dealloc 的理解"></a>3.alloc、retain、release 、dealloc 的理解</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"># alloc: </div><div class="line">      初始化对象调用，初始化时会给对象分配内存大小等信息。底层调用如下：</div><div class="line">      struct obj_layout &#123;</div><div class="line">        NSUInteger retained;</div><div class="line">      &#125;;</div><div class="line"></div><div class="line">    NSAllocateObject(Class aClass, NSUInteger extraBytes, NSZone *zone)&#123;</div><div class="line">        int	size = 计算容纳对象所需内存大小;</div><div class="line">        id	new = NSZoneCalloc(zone, 1, size);</div><div class="line">        memset (new, 0, size);</div><div class="line">        new = (id)&amp;((obj)new)[1];</div><div class="line">    &#125;</div><div class="line"></div><div class="line"># retain: </div><div class="line">    作用是让引用计数器+1（持有对象），从以下源码上看,在处理引用计数器的同时也会校验，以免超出最大值。</div><div class="line">    - (NSUInteger) retainCount&#123;</div><div class="line">      return NSExtraRefCount(self) + 1;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    inline NSUInteger</div><div class="line">    NSExtraRefCount(id anObject)&#123;</div><div class="line">      return ((obj_layout)anObject)[-1].retained;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    - (id) retain&#123;</div><div class="line">      NSIncrementExtraRefCount(self);</div><div class="line">      return self;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    inline void</div><div class="line">    NSIncrementExtraRefCount(id anObject)&#123;</div><div class="line">      if (((obj)anObject)[-1].retained == UINT_MAX - 1)</div><div class="line">        [NSException raise: NSInternalInconsistencyException</div><div class="line">      format: @&quot;NSIncrementExtraRefCount() asked to increment too far”];</div><div class="line">  ((obj_layout)anObject)[-1].retained++;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"># release:</div><div class="line">    对应retain,release的作用是让引用计数器-1，释放内存。如果该引用计数器为0，则销毁该对象，调用dealloc。</div><div class="line">    - (oneway void) release&#123;</div><div class="line">      if (NSDecrementExtraRefCountWasZero(self))&#123;</div><div class="line">          [self dealloc];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    BOOL NSDecrementExtraRefCountWasZero(id anObject)&#123;</div><div class="line">  if (((obj)anObject)[-1].retained == 0)  &#123;</div><div class="line">	  return YES;</div><div class="line">	&#125;</div><div class="line">      ((obj)anObject)[-1].retained--;</div><div class="line">    	return NO;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"># dealloc</div><div class="line">    与alloc反之，销毁对象。同时每个对象销毁时会调用【-(void)dealloc】这个方法，相应的可以在这个方法里做一些释放资源的方法。</div><div class="line">    - (void) dealloc&#123;</div><div class="line">      NSDeallocateObject (self);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    inline void</div><div class="line">    NSDeallocateObject(id anObject)&#123;</div><div class="line">      obj_layout o = &amp;((obj_layout)anObject)[-1];</div><div class="line">      free(o);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h4 id="4-assign、weak、strong、copy这些属性关键词做了什么？"><a href="#4-assign、weak、strong、copy这些属性关键词做了什么？" class="headerlink" title="4.assign、weak、strong、copy这些属性关键词做了什么？"></a>4.assign、weak、strong、copy这些属性关键词做了什么？</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">以上都是用于修饰property的关键词。</div><div class="line">而property的本质简单来说。</div><div class="line">property = var + setter + getter。也就是利用property，系统会自动帮我们生成成员变量、set方法、get方法。(从runtime源码上可能有所区别)</div><div class="line"></div><div class="line">assign：</div><div class="line">    用于修饰非对象（如int...等），setter、getter存取。</div><div class="line">    </div><div class="line">weak:</div><div class="line">    1.用于修饰对象，不可修饰非对象。</div><div class="line">    2.并不拥有该对象，是一种弱引用，引用计数器不会+1。</div><div class="line">    3.当该对象销毁时，会把该对象设为nil,这也是weak的一个特性/不同点。</div><div class="line">    </div><div class="line">strong:</div><div class="line">    大致与weak相反。当然也是用于修饰对象。</div><div class="line">    strong是一种强引用，当用strong修饰时，会持有该对象，引用计数器+1;</div><div class="line">    其实它没retain没什么区别。在strong中，set方法里也是调用retain。</div><div class="line"></div><div class="line">copy:</div><div class="line">    如其名，copy其实就是复制。在set方式时，会对该对象复制一份，这样就避免了在传值时的操作对原来的对象发生改变。</div><div class="line">    通常会用于NSString、NSArray、NSDictionary、block等这些对象。</div><div class="line">    注意：不可以直接copy来修饰NSMutableString、NSMutableArray、NSMutableDictionary这些，否则会奔溃。</div><div class="line">    另外： 如果想自己创建类拥有copy功能，那么需要实现以上方法。</div><div class="line">    - (id)copyWithZone:(NSZone *)zone &#123;</div><div class="line">        // 在这里面做赋值操作</div><div class="line">    &#125;</div><div class="line">    这个方法，当然需要遵循&lt;NSCopying&gt;协议。</div></pre></td></tr></table></figure>
+<h4 id="5-关于循环引用"><a href="#5-关于循环引用" class="headerlink" title="5.关于循环引用"></a>5.关于循环引用</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">循环引用是指两个或多个对象之间相互引用。</div><div class="line">如果两个对象之间产生循环引用，那么这两个对象就会销毁不了，造成内存泄漏。</div><div class="line">内存泄漏的话，可能会造成程序运行内存过高，或造成奔溃。(如图</div><div class="line"></div><div class="line">通常以下情况可能会造成循环引用</div><div class="line">1.delegate </div><div class="line">2.block </div><div class="line">3.单例 </div><div class="line"></div><div class="line">---</div><div class="line">解决：</div><div class="line">1.代理用weak</div><div class="line">2.block用弱引用</div><div class="line">3.注意单例的使用，如通知单例，add/需要remove</div><div class="line"></div><div class="line">为什么说内存泄漏可能会造成程序奔溃呢？</div><div class="line">举个例子：</div><div class="line">    A页面添加个某个通知的监听。</div><div class="line">    如果A页面存在内存泄漏，也就是退出这个页面后还是没有销毁。</div><div class="line">    当发生这个通知时，A页面还是能接收到通知的。</div><div class="line">    那么这个时候后面的操作逻辑就会很容易造成奔溃了。</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13gackj20f404h3yv.jpg" alt=""></p>
+<p><img src="http://ww1.sinaimg.cn/large/692ecdb9gy1fz1y13hehwj20gn0c63zf.jpg" alt=""></p>
+<h4 id="6-关于autorelease"><a href="#6-关于autorelease" class="headerlink" title="6.关于autorelease"></a>6.关于autorelease</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">参考：https:<span class="comment">//blog.sunnyxx.com/2014/10/15/behind-autorelease/</span></div><div class="line">     http:<span class="comment">//blog.leichunfeng.com/blog/2015/05/31/objective-c-autorelease-pool-implementation-principle/#jtss-tsina</span></div><div class="line"></div><div class="line"></div><div class="line">- 简介</div><div class="line">    autorelease是延迟释放的一种机制。</div><div class="line">    一般写法如下：</div><div class="line">        @autorelease&#123;</div><div class="line">            <span class="comment">// do whatever</span></div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 执行结束后，会释放&#123;&#125;里面的对象。</span></div><div class="line">        <span class="comment">// 其实是在后面再循环发送 autorelease 消息。</span></div><div class="line">            </div><div class="line">- 释放时机</div><div class="line">     但在ARC中，我们不需要写autorelease，因为系统已经帮我们做了这些事情。</div><div class="line">     那它释放的时机呢？</div><div class="line">     答案是：在一个Runloop循环迭代结束后销毁。（而不是&#125;结束后。</div><div class="line">     而它能够释放的原因是系统在每个runloop迭代中都加入了自动释放池Push和Pop。</div><div class="line">    </div><div class="line"></div><div class="line">- 原理</div><div class="line">    详细看参考link</div></pre></td></tr></table></figure>
+<h4 id="7-关于浅拷贝和深拷贝"><a href="#7-关于浅拷贝和深拷贝" class="headerlink" title="7.关于浅拷贝和深拷贝"></a>7.关于浅拷贝和深拷贝</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">浅拷贝： 只拷贝内容，不拷贝指针。</div><div class="line">深拷贝： 既拷贝内容，也拷贝指针。</div><div class="line"></div><div class="line">NSString  copy  ---&gt; 浅拷贝</div><div class="line">NSString  mutableCopy ---&gt; 深拷贝</div><div class="line">NSMutableString  copy  ---&gt; 深拷贝</div><div class="line">NSMutableString  mutableCopy ---&gt; 深拷贝</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/21/iOS中事件的传递/" rel="next" title="iOS中事件的传递">
+                <i class="fa fa-chevron-left"></i> iOS中事件的传递
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/06/我心中2017的十大电影/" rel="prev" title="我心中2017的十大电影">
+                我心中2017的十大电影 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="zengyijie_" />
+          <p class="site-author-name" itemprop="name">zengyijie_</p>
+          <p class="site-description motion-element" itemprop="description">a iOS Developer</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-为什么需要内存管理？"><span class="nav-number">1.</span> <span class="nav-text">1.为什么需要内存管理？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-ARC（Automatic-Reference-Count自动引用计数）的理解"><span class="nav-number">2.</span> <span class="nav-text">2.ARC（Automatic Reference Count自动引用计数）的理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-alloc、retain、release-、dealloc-的理解"><span class="nav-number">3.</span> <span class="nav-text">3.alloc、retain、release 、dealloc 的理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-assign、weak、strong、copy这些属性关键词做了什么？"><span class="nav-number">4.</span> <span class="nav-text">4.assign、weak、strong、copy这些属性关键词做了什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-关于循环引用"><span class="nav-number">5.</span> <span class="nav-text">5.关于循环引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-关于autorelease"><span class="nav-number">6.</span> <span class="nav-text">6.关于autorelease</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-关于浅拷贝和深拷贝"><span class="nav-number">7.</span> <span class="nav-text">7.关于浅拷贝和深拷贝</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zengyijie_</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
