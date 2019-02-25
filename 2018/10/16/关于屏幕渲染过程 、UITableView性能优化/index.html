@@ -1,0 +1,700 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="屏幕渲染过程 &amp;amp; 关于UITableView性能优化iOS 保持界面流畅的技巧绘制像素到屏幕上iOS探索：UI视图之卡顿、掉帧及绘制原理
+性能优化UITableView优化的技巧
+屏幕显示原理和渲染过程1234567891011121314151617181.App上所有的操作，底层其实都是CPU在工作,由CPU指挥、调度，才得以App能够正常使用。2.而屏幕上显示的内容、像素的绘制则是由">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于屏幕渲染过程 、UITableView性能优化">
+<meta property="og:url" content="http://yoursite.com/2018/10/16/关于屏幕渲染过程 、UITableView性能优化/index.html">
+<meta property="og:site_name" content="Zengyijie’s   Blog">
+<meta property="og:description" content="屏幕渲染过程 &amp;amp; 关于UITableView性能优化iOS 保持界面流畅的技巧绘制像素到屏幕上iOS探索：UI视图之卡顿、掉帧及绘制原理
+性能优化UITableView优化的技巧
+屏幕显示原理和渲染过程1234567891011121314151617181.App上所有的操作，底层其实都是CPU在工作,由CPU指挥、调度，才得以App能够正常使用。2.而屏幕上显示的内容、像素的绘制则是由">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5sub0j20uc0dy0tr.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5celcj20ht06rq2x.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5pwv1j20yg06haau.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5ilflj213k0a8mxp.jpg">
+<meta property="og:updated_time" content="2019-02-25T09:19:23.050Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于屏幕渲染过程 、UITableView性能优化">
+<meta name="twitter:description" content="屏幕渲染过程 &amp;amp; 关于UITableView性能优化iOS 保持界面流畅的技巧绘制像素到屏幕上iOS探索：UI视图之卡顿、掉帧及绘制原理
+性能优化UITableView优化的技巧
+屏幕显示原理和渲染过程1234567891011121314151617181.App上所有的操作，底层其实都是CPU在工作,由CPU指挥、调度，才得以App能够正常使用。2.而屏幕上显示的内容、像素的绘制则是由">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5sub0j20uc0dy0tr.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/10/16/关于屏幕渲染过程 、UITableView性能优化/"/>
+
+
+
+
+
+  <title> 关于屏幕渲染过程 、UITableView性能优化 | Zengyijie’s   Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Zengyijie’s   Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">a iOS Developer</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/16/关于屏幕渲染过程 、UITableView性能优化/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="zengyijie_">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Zengyijie’s   Blog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Zengyijie’s   Blog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                关于屏幕渲染过程 、UITableView性能优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-16T15:02:48+08:00">
+                2018-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="屏幕渲染过程-amp-关于UITableView性能优化"><a href="#屏幕渲染过程-amp-关于UITableView性能优化" class="headerlink" title="屏幕渲染过程 &amp; 关于UITableView性能优化"></a>屏幕渲染过程 &amp; 关于UITableView性能优化</h1><p><a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="external">iOS 保持界面流畅的技巧</a><br><a href="https://objccn.io/issue-3-1/" target="_blank" rel="external">绘制像素到屏幕上</a><br><a href="https://juejin.im/post/5c0931d451882531b81b20fa" target="_blank" rel="external">iOS探索：UI视图之卡顿、掉帧及绘制原理</a></p>
+<p><a href="https://github.com/SunshineBrother/JHBlog/blob/master/性能优化/性能优化.md" target="_blank" rel="external">性能优化</a><br><a href="http://www.samirchen.com/ios-performance-optimization/" target="_blank" rel="external">UITableView优化的技巧</a><br><a href="http://www.cnblogs.com/fishbay/p/7576176.html" target="_blank" rel="external"></a></p>
+<h3 id="屏幕显示原理和渲染过程"><a href="#屏幕显示原理和渲染过程" class="headerlink" title="屏幕显示原理和渲染过程"></a>屏幕显示原理和渲染过程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">1.App上所有的操作，底层其实都是CPU在工作,由CPU指挥、调度，才得以App能够正常使用。</div><div class="line"></div><div class="line">2.而屏幕上显示的内容、像素的绘制则是由交给GPU完成，GPU是一个专门为图形高并发计算而量身定做的处理单元，简称图形处理单元。</div><div class="line"></div><div class="line">3.关于「缓冲区」。「缓冲区」存放的是每一帧画面、像素点数据，系统中通常会有两个「缓冲区」（双缓冲机制）。</div><div class="line">【GPU 会预先渲染好一帧放入一个缓冲区内，让视频控制器读取，当下一帧渲染好后，GPU 会直接把视频控制器的指针指向第二个缓冲器。如此一来效率会有很大的提升。如图一】（来自ibireme）</div><div class="line"></div><div class="line">4.关于「VSync」。GPU会有一个垂直同步机制，也就是等待显示器VSync信号发出后，GPU才去进行新的一帧渲染和更新缓冲区，以此来保证页面的完整性和流畅度。</div><div class="line"></div><div class="line">以上就是屏幕的显示原理。</div><div class="line"></div><div class="line">而在iOS等设备上，在GPU的上一层则是OpenGL/OpenGL ES。</div><div class="line"></div><div class="line">1.关于「OpenGL」，OpenGL(Open Graphics Library) 是一个提供了 2D 和 3D 图形渲染的 API。而在iOS中，屏幕的渲染由OpenGL完成，</div><div class="line"></div><div class="line">2.而更上一层的是iOS中的 Core Animation框架，如图二图上所示。当然你也可以重写一个view的drawRect方法，直接使用Core Graphics进行绘制。</div><div class="line">（它们底层也是调用OpenGL）</div><div class="line"> (WWDC 2018，Apple 宣布 iOS 12 将弃用 OpenGL / CL,采用Metal，Metal 能让你尽可能的发挥 GPU 强大的渲染、运算的能力。)</div></pre></td></tr></table></figure>
+<p>图一<br><img src="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5sub0j20uc0dy0tr.jpg" alt=""></p>
+<p>图二 （大概过程）<br><img src="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5celcj20ht06rq2x.jpg" alt=""></p>
+<p>图三<br><img src="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5pwv1j20yg06haau.jpg" alt=""></p>
+<h3 id="产生卡顿的原因"><a href="#产生卡顿的原因" class="headerlink" title="产生卡顿的原因"></a>产生卡顿的原因</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">上面已经有介绍渲染的原理,这里引用 ibireme 的解释，非常清晰。（如图四</div><div class="line"></div><div class="line">「在 VSync 信号到来后，系统图形服务会通过 CADisplayLink 等机制通知 App，App 主线程开始在 CPU 中计算显示内容，比如视图的创建、布局计算、图片解码、文本绘制等。</div><div class="line">随后 CPU 会将计算好的内容提交到 GPU 去，由 GPU 进行变换、合成、渲染。随后 GPU 会把渲染结果提交到帧缓冲区去，等待下一次 VSync 信号到来时显示到屏幕上。</div><div class="line">由于垂直同步的机制，如果在一个 VSync 时间内，CPU 或者 GPU 没有完成内容提交，则那一帧就会被丢弃，等待下一次机会再显示，而这时显示屏会保留之前的内容不变。</div><div class="line">这就是界面卡顿的原因。」</div><div class="line"></div><div class="line">「关于FPS」  FPS(frames per second) 指的是每秒传输帧数 ,用于保存、显示动态视频的信息数量，每秒钟帧数愈多，所显示的动作就会愈流畅。</div><div class="line">一般应用只要保持 FPS 在 50-60，应用就会给用户流畅的感觉，反之，用户则会感觉到卡顿。</div><div class="line"></div><div class="line">在iOS中是60FPS,也就是每秒60帧，相当于每帧16.7ms。那么在这个时间内，如果CPU和GPU没能把渲染结果提交到帧缓冲区中，</div><div class="line">这个时候就会出现掉帧（如下图所示），这就会出现页面上的卡顿。</div></pre></td></tr></table></figure>
+<p>图四<br><img src="http://ww1.sinaimg.cn/large/692ecdb9ly1g0isc5ilflj213k0a8mxp.jpg" alt=""></p>
+<h3 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">由上面描述可知，底层屏幕的渲染主要由CPU和GPU完成。</div><div class="line">所以,可以从这两方面着手优化。</div></pre></td></tr></table></figure>
+<h5 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">在渲染这方面CPU主要工作是视图的创建、布局计算、图片解码、文本绘制。</div><div class="line">那么可以针对性地进行优化。</div><div class="line"></div><div class="line">1.减小视图创建的开销，避免频繁创建。</div><div class="line"></div><div class="line">2.合理的布局计算，可以使用缓存高度等策略。</div><div class="line"></div><div class="line">3.异步绘制，一些耗时的计算可以放在子线程去完成。</div></pre></td></tr></table></figure>
+<h5 id="GPU"><a href="#GPU" class="headerlink" title="GPU"></a>GPU</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">GPU 主要工作是对CPU计算好的内容进行变换、合成、渲染。</div><div class="line"> </div><div class="line">在这层面上，最容易的是离屏渲染而造成卡顿、掉帧。</div></pre></td></tr></table></figure>
+<h5 id="离屏渲染（Off-Screen-Rendering-）"><a href="#离屏渲染（Off-Screen-Rendering-）" class="headerlink" title="离屏渲染（Off-Screen Rendering ）"></a>离屏渲染（Off-Screen Rendering ）</h5><p><a href="https://imlifengfeng.github.io/article/593/" target="_blank" rel="external">参考-离屏渲染</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">离屏渲染，顾名思义，指的是离开当前屏幕（On-Screen Rendering）进行渲染。</div><div class="line">也就是指CPU在当前屏幕缓冲区外新开辟了一个缓冲区进行渲染。</div><div class="line"></div><div class="line">离屏渲染的计算成本非常高。主要体现在：</div><div class="line">1.需要创建新的缓冲区</div><div class="line">2.在渲染的同时，频繁切换上下文</div><div class="line"></div><div class="line">造成离屏渲染原因?</div><div class="line">    shouldRasterize（光栅化）</div><div class="line">    masks（遮罩）</div><div class="line">    shadows（阴影）</div><div class="line">    edge antialiasing（抗锯齿）</div><div class="line">    group opacity（不透明）</div><div class="line">    复杂形状设置圆角等</div><div class="line">    渐变</div><div class="line">以上的这几种情况都有可能触发离屏渲染，</div><div class="line"></div><div class="line">为什么设置这些会造成离屏渲染？</div><div class="line">因为当当使用layer圆角，阴影，遮罩的时候，图层属性的混合体被指定为在未预合成之前不能直接在屏幕中绘制，</div><div class="line">所以就需要屏幕外开辟一个新的缓冲区进行渲染。</div><div class="line"></div><div class="line">如何查看是否产生离屏渲染呢？</div><div class="line">苹果为我们提供了一个测试工具Core Animation。可以在Xcode-&gt;Open Develeper Tools-&gt;Instruments.对离屏渲染的检测。</div></pre></td></tr></table></figure>
+<h2 id="关于UITableView性能优化"><a href="#关于UITableView性能优化" class="headerlink" title="关于UITableView性能优化"></a>关于UITableView性能优化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">理解了屏幕的渲染原理和过程，就能更容易针对UITableView性能优化了。</div><div class="line">以下是一些技巧。</div></pre></td></tr></table></figure>
+<h4 id="重用机制"><a href="#重用机制" class="headerlink" title="重用机制"></a>重用机制</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1.只加载显示出来的cell</div><div class="line">2.当滚动列表时，部分UITableViewCell会移出窗口，UITableView会将窗口外的UITableViewCell放入一个对象池中，等待重用。</div><div class="line">3.当UITableView要求dataSource返回UITableViewCell时，dataSource会先查看这个对象池，如果池中有未使用的UITableViewCell，dataSource会用新的数据配置这个UITableViewCell，然后返回给UITableView</div><div class="line">4.重新显示到窗口中，从而避免创建新对象</div></pre></td></tr></table></figure>
+<h4 id="避免阻塞主线程-、异步绘制"><a href="#避免阻塞主线程-、异步绘制" class="headerlink" title="避免阻塞主线程 、异步绘制"></a>避免阻塞主线程 、异步绘制</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">在iOS上，很多工作都是在主线程执行，所以避免主线程阻塞非常重要。</div><div class="line">一些耗时的操作可以开辟一条线程去执行，比如网络请求、图片请求等。</div><div class="line">另外其他耗时的文本计算、绘制也可以异步执行。</div></pre></td></tr></table></figure>
+<h4 id="对象的开销"><a href="#对象的开销" class="headerlink" title="对象的开销"></a>对象的开销</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">对象的创建会分配内存，调整属性等操作，也是比较消耗CPU资源的原因之一。</div><div class="line">所以需要避免频繁创建对象，重复多次调用等。其次，cell的层次不要太深，不然会很消耗CPU。</div><div class="line">另外，在适合的时候，可以使用比较轻量级的容器，比如如果一个不需要响应事件的view可以用layer代替。等。</div><div class="line">使用懒加载，用到才去创建；避免频繁创建使用 NSDateFormatter。</div></pre></td></tr></table></figure>
+<h4 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1.图片缓存；避免每次都去请求，比如使用SDWebImage</div><div class="line">2.高度缓存；TableView会有一个默认高度的值，但如果实现了【- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath】方法，</div><div class="line">则每次cell的刷新首先会调用这个方法，调用比较频繁，如果在这个方法里有比较耗时的计算的话，会消耗CPU的开支。</div><div class="line">所以，可以进行高度缓存。</div></pre></td></tr></table></figure>
+<h4 id="避免离屏渲染"><a href="#避免离屏渲染" class="headerlink" title="避免离屏渲染"></a>避免离屏渲染</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">像上面讲的，离屏渲染的计算成本非常高，很容易导致丢帧、页面卡顿等。</div><div class="line">所以在开发中需要避免离屏渲染。像切圆角、阴影等操作，可以用贝塞尔曲线去代替。</div></pre></td></tr></table></figure>
+<h4 id="Xib-amp-Autolayout-amp-Frame"><a href="#Xib-amp-Autolayout-amp-Frame" class="headerlink" title="Xib &amp; Autolayout &amp; Frame"></a>Xib &amp; Autolayout &amp; Frame</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">从性能来说，Frame &gt; Autolayout &gt;  Xib .</div><div class="line">因为Autolayout和Xib在底层都是转为Frame进行布局。</div><div class="line">所以如果一些比较复杂的cell，要避免使用Xib，尽量使用frame,这样性能会更好。</div></pre></td></tr></table></figure>
+<h3 id="其他一些小技巧"><a href="#其他一些小技巧" class="headerlink" title="其他一些小技巧"></a>其他一些小技巧</h3><p><a href="http://www.samirchen.com/ios-performance-optimization/" target="_blank" rel="external">参考-&gt;UITableView优化的技巧</a><br><a href="http://www.cnblogs.com/fishbay/p/7576176.html" target="_blank" rel="external"></a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">1.图片尺寸匹配UIImageView</div><div class="line"></div><div class="line">2.选择合适的容器存储，如NSArray、NSDictionary、NSSet等，在合适的场景使用合适的容器。</div><div class="line"></div><div class="line">3.控件复用、懒加载等。</div><div class="line"></div><div class="line">4.尽可能设置 View 为不透明</div><div class="line"></div><div class="line">...等</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/29/关于iOS中的持久化方案/" rel="next" title="【重温-总结】关于iOS中的持久化方案">
+                <i class="fa fa-chevron-left"></i> 【重温-总结】关于iOS中的持久化方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="zengyijie_" />
+          <p class="site-author-name" itemprop="name">zengyijie_</p>
+          <p class="site-description motion-element" itemprop="description">a iOS Developer</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#屏幕渲染过程-amp-关于UITableView性能优化"><span class="nav-number">1.</span> <span class="nav-text">屏幕渲染过程 & 关于UITableView性能优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#屏幕显示原理和渲染过程"><span class="nav-number">1.0.1.</span> <span class="nav-text">屏幕显示原理和渲染过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#产生卡顿的原因"><span class="nav-number">1.0.2.</span> <span class="nav-text">产生卡顿的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化方案"><span class="nav-number">1.0.3.</span> <span class="nav-text">优化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CPU"><span class="nav-number">1.0.3.0.1.</span> <span class="nav-text">CPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GPU"><span class="nav-number">1.0.3.0.2.</span> <span class="nav-text">GPU</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#离屏渲染（Off-Screen-Rendering-）"><span class="nav-number">1.0.3.0.3.</span> <span class="nav-text">离屏渲染（Off-Screen Rendering ）</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于UITableView性能优化"><span class="nav-number">1.1.</span> <span class="nav-text">关于UITableView性能优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重用机制"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">重用机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免阻塞主线程-、异步绘制"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">避免阻塞主线程 、异步绘制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象的开销"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">对象的开销</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免离屏渲染"><span class="nav-number">1.1.0.5.</span> <span class="nav-text">避免离屏渲染</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Xib-amp-Autolayout-amp-Frame"><span class="nav-number">1.1.0.6.</span> <span class="nav-text">Xib & Autolayout & Frame</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他一些小技巧"><span class="nav-number">1.1.1.</span> <span class="nav-text">其他一些小技巧</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zengyijie_</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

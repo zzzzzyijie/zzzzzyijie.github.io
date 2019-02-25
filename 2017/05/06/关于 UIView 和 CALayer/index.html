@@ -1,0 +1,707 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="参考：View-Layer 协作界面渲染的整体流程UIView和CALayerUIView 绘制渲染机制
+UIView 和 CALayer 的基本概念
+UIView
+  12345678910111213UIView是UIKit框架中的一个非常重要的控件之一，它继承于UIResponder.绝大多数的基础控件都继承于UIView,比如：UILabel,UIImageView,UIControl等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于 UIView 和 CALayer">
+<meta property="og:url" content="http://yoursite.com/2017/05/06/关于 UIView 和 CALayer/index.html">
+<meta property="og:site_name" content="Zengyijie’s   Blog">
+<meta property="og:description" content="参考：View-Layer 协作界面渲染的整体流程UIView和CALayerUIView 绘制渲染机制
+UIView 和 CALayer 的基本概念
+UIView
+  12345678910111213UIView是UIKit框架中的一个非常重要的控件之一，它继承于UIResponder.绝大多数的基础控件都继承于UIView,比如：UILabel,UIImageView,UIControl等。">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowexl9wj20r00fdgn8.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowewvjwj20ns0qsjvc.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowexfksj20we0q043j.jpg">
+<meta property="og:updated_time" content="2019-02-25T08:21:19.515Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于 UIView 和 CALayer">
+<meta name="twitter:description" content="参考：View-Layer 协作界面渲染的整体流程UIView和CALayerUIView 绘制渲染机制
+UIView 和 CALayer 的基本概念
+UIView
+  12345678910111213UIView是UIKit框架中的一个非常重要的控件之一，它继承于UIResponder.绝大多数的基础控件都继承于UIView,比如：UILabel,UIImageView,UIControl等。">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowexl9wj20r00fdgn8.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/06/关于 UIView 和 CALayer/"/>
+
+
+
+
+
+  <title> 关于 UIView 和 CALayer | Zengyijie’s   Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Zengyijie’s   Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">a iOS Developer</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/06/关于 UIView 和 CALayer/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="zengyijie_">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Zengyijie’s   Blog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Zengyijie’s   Blog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                关于 UIView 和 CALayer
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-06T22:03:12+08:00">
+                2017-05-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>参考：<br><a href="https://objccn.io/issue-12-4/" target="_blank" rel="external">View-Layer 协作</a><br><a href="http://blog.handy.wang/blog/2015/10/03/uiviewyu-calayerxie-zuo-xuan-ran-jie-mian-de-guo-cheng/" target="_blank" rel="external">界面渲染的整体流程</a><br><a href="https://jiangxh1992.github.io/ios/2016/11/10/UIView%E4%B8%8ECALayer/" target="_blank" rel="external">UIView和CALayer</a><br><a href="https://blog.csdn.net/yangyangzhang1990/article/details/52452707" target="_blank" rel="external">UIView 绘制渲染机制</a></p>
+<h3 id="UIView-和-CALayer-的基本概念"><a href="#UIView-和-CALayer-的基本概念" class="headerlink" title="UIView 和 CALayer 的基本概念"></a>UIView 和 CALayer 的基本概念</h3><ul>
+<li><p>UIView</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">UIView是UIKit框架中的一个非常重要的控件之一，它继承于UIResponder.绝大多数的基础控件都继承于UIView,比如：UILabel,UIImageView,UIControl等。</div><div class="line">用于视图的显示，接收/处理事件以及一些动画的处理。它是对底层的一个封装。</div><div class="line">大概的继承如下：</div><div class="line">NSObject </div><div class="line">    - UIResponder</div><div class="line">       - UIView</div><div class="line">           - UILabel</div><div class="line">           - UIImageView</div><div class="line">           ....</div><div class="line">           - UIControl</div><div class="line">                - UIButton</div><div class="line">等。</div><div class="line">可以理解为UIView是iOS中提供给开发者直接调用的最上层的控件。</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>CALayer</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">CALayer表面翻译是图层的意思，它是属于QuarzCore Framework下的CoreAnimation，同样是用于视图的显示，使用也和UIView很相似。</div><div class="line">但CALayer是继承于NSObject。继承如下：</div><div class="line">NSObject </div><div class="line">    - CALayer</div><div class="line">        - sublayer</div><div class="line">        ...</div><div class="line">等。</div><div class="line">CoreAnimation不是被单独地打包到一个Framework里的，而是属于QuartzCore Framework的一部分。</div><div class="line">UIKit Framework、QuartzCore Framework(CoreAnimation)、CoreGraphics Framework的关系如下图：</div></pre></td></tr></table></figure>
+<p>  <img src="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowexl9wj20r00fdgn8.jpg" alt=""></p>
+</li>
+</ul>
+<h3 id="两者的关系和区别"><a href="#两者的关系和区别" class="headerlink" title="两者的关系和区别"></a>两者的关系和区别</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">前面有说过，UIView是对底层的封装，它其实是对CALayer的封装，每一个View内部都会有相对应的一个layer。</div><div class="line">UIView之所以能显示，都是由其底层的layer驱动的。并成为其layer的delegate,所以也能在UIView实现layer的一些操作。</div><div class="line"></div><div class="line">他们最大的区别是，UIView继承于UIResponder，能接收和处理事件；而CALayer则不能，它继承于NSObject。</div><div class="line">UIView内部利用CALayer实现显示的功能，同时也作为响应者，响应事件；CALayer则只是用于渲染和显示。</div><div class="line"></div><div class="line">其他的一些区别：</div><div class="line">1.layer的frame由anchorPoint、position、bounds以及 transform 组成。而view则仅仅提供frame。</div><div class="line">2.layer会有隐式动画，view不会。</div></pre></td></tr></table></figure>
+<h3 id="UIView的渲染过程"><a href="#UIView的渲染过程" class="headerlink" title="UIView的渲染过程"></a>UIView的渲染过程</h3><ul>
+<li>UIView的绘制</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">1.当执行添加某个如 [self.view addSubview:subView] 或手动调用setNeedsLayout/setNeedsDisplay时,</div><div class="line">系统会在这个view上标志，并提交到全局容器上,等待处理。</div><div class="line"></div><div class="line">2.在runloop循环执行当前事件，并即将退出事件时，会回调_ZN2CA11Transaction17observer_callbackEP19__CFRunLoopObservermPv()函数,</div><div class="line">这个函数会遍历所有待处理的UIView,并执行绘制([CALayer display]),更新UI。</div><div class="line"></div><div class="line">（1，2点 如下图）</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowewvjwj20ns0qsjvc.jpg" alt=""></p>
+<ul>
+<li>[CALayer display]</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[CALayer display] 做了什么事情呢？</div><div class="line"></div><div class="line">1.首先会创建CGContext上下文（backing store）。</div><div class="line"></div><div class="line">2.判断是否有代理，有，则系统会执行[drawLayer:inContext:] --&gt; [UIView drawRect:];</div><div class="line">如果没有，则直接调用 [CALayer drawInCotext:]。</div><div class="line"></div><div class="line">3.然后把绘制的内容提交到下一层处理。</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/692ecdb9gy1g0iowexfksj20we0q043j.jpg" alt=""></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/21/关于iOS中事件的传递/" rel="next" title="关于iOS中事件的传递">
+                <i class="fa fa-chevron-left"></i> 关于iOS中事件的传递
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/12/重温-iOS内存管理/" rel="prev" title="<基础系列一>iOS内存管理">
+                <基础系列一>iOS内存管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="zengyijie_" />
+          <p class="site-author-name" itemprop="name">zengyijie_</p>
+          <p class="site-description motion-element" itemprop="description">a iOS Developer</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIView-和-CALayer-的基本概念"><span class="nav-number">1.</span> <span class="nav-text">UIView 和 CALayer 的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两者的关系和区别"><span class="nav-number">2.</span> <span class="nav-text">两者的关系和区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UIView的渲染过程"><span class="nav-number">3.</span> <span class="nav-text">UIView的渲染过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zengyijie_</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
