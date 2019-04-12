@@ -1,0 +1,742 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="这里所说的大图可能是10几兆、几十兆、100多兆、甚至更大。
+虽然这样的需求在App上还是比较少见的，但背后逻辑值得思考和研究。
+下面针对的是：本地加载。（如果是网络读取的话，我的考虑可能是：
+首先下载获取图片文件资源，然后再加载（毕竟是比较大的文件），原理应该是大同小异。
+前期准备
+图片资源
+
+12345首先得准备（大）图片资源。如此大的图片文件，在网络上直接搜索是比较难找到的。所以，我的做法是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于iOS App加载大图的一些思考与实践">
+<meta property="og:url" content="http://yoursite.com/2019/04/12/关于iOS App加载大图的一些思考与实践/index.html">
+<meta property="og:site_name" content="Zengyijie’s   Blog">
+<meta property="og:description" content="这里所说的大图可能是10几兆、几十兆、100多兆、甚至更大。
+虽然这样的需求在App上还是比较少见的，但背后逻辑值得思考和研究。
+下面针对的是：本地加载。（如果是网络读取的话，我的考虑可能是：
+首先下载获取图片文件资源，然后再加载（毕竟是比较大的文件），原理应该是大同小异。
+前期准备
+图片资源
+
+12345首先得准备（大）图片资源。如此大的图片文件，在网络上直接搜索是比较难找到的。所以，我的做法是">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/692ecdb9gy1g2021qnwrmj20bv0mo41q.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/692ecdb9gy1g20225tgf5j20n80ff75h.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/692ecdb9gy1g2022hx7ukj20th04jtag.jpg">
+<meta property="og:updated_time" content="2019-04-12T12:01:02.471Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于iOS App加载大图的一些思考与实践">
+<meta name="twitter:description" content="这里所说的大图可能是10几兆、几十兆、100多兆、甚至更大。
+虽然这样的需求在App上还是比较少见的，但背后逻辑值得思考和研究。
+下面针对的是：本地加载。（如果是网络读取的话，我的考虑可能是：
+首先下载获取图片文件资源，然后再加载（毕竟是比较大的文件），原理应该是大同小异。
+前期准备
+图片资源
+
+12345首先得准备（大）图片资源。如此大的图片文件，在网络上直接搜索是比较难找到的。所以，我的做法是">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/692ecdb9gy1g2021qnwrmj20bv0mo41q.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/12/关于iOS App加载大图的一些思考与实践/"/>
+
+
+
+
+
+  <title> 关于iOS App加载大图的一些思考与实践 | Zengyijie’s   Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Zengyijie’s   Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">a iOS Developer</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/12/关于iOS App加载大图的一些思考与实践/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="zengyijie_">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.gif">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Zengyijie’s   Blog">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Zengyijie’s   Blog" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                关于iOS App加载大图的一些思考与实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-12T19:25:12+08:00">
+                2019-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <pre><code>这里所说的大图可能是10几兆、几十兆、100多兆、甚至更大。
+虽然这样的需求在App上还是比较少见的，但背后逻辑值得思考和研究。
+下面针对的是：本地加载。（如果是网络读取的话，我的考虑可能是：
+首先下载获取图片文件资源，然后再加载（毕竟是比较大的文件），原理应该是大同小异。
+</code></pre><h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><ul>
+<li>图片资源</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">首先得准备（大）图片资源。</div><div class="line">如此大的图片文件，在网络上直接搜索是比较难找到的。</div><div class="line">所以，我的做法是使用工具来放大该图片大小。</div><div class="line">我这里用的是：PhotoZoom Pro </div><div class="line">如下图所示：打开你所需要的图片文件-修改分辨率-保存。( 图片格式自己喜欢就好</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/692ecdb9gy1g2021qnwrmj20bv0mo41q.jpg" alt=""></p>
+<ul>
+<li>引入项目</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">把图片资源引入项目中,那就可以使用了。</div></pre></td></tr></table></figure>
+<h2 id="遇到问题-amp-原因"><a href="#遇到问题-amp-原因" class="headerlink" title="遇到问题&amp;原因"></a>遇到问题&amp;原因</h2><ul>
+<li>内存问题</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">这么大的图片文件，我们不可能直接按平常的方式使用。</div><div class="line"></div><div class="line">那假如按平常一样使用，会有什么后果呢？</div><div class="line"></div><div class="line">// 假如图片文件是 example.jpg ( 235MB</div><div class="line">NSString *filePath = [[NSBundle mainBundle] pathForResource:@&quot;example&quot; ofType:@&quot;jpg&quot;];</div><div class="line">UIImage *exampleImage = [UIImage imageWithContentsOfFile:filePath];</div><div class="line">UIImageView *imageView = [[UIImageView alloc] initWithImage:exampleImage];</div><div class="line">[self.view addSubview:imageView];</div><div class="line"></div><div class="line">结果就是如下图所示：运行内存达到345MB了，这样肯定不行的，App会变得非常卡顿或crash</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/692ecdb9gy1g20225tgf5j20n80ff75h.jpg" alt=""></p>
+<ul>
+<li><p>原因</p>
+<p>  <a href="https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="external">iOS 保持界面流畅的技巧</a><br>  <a href="https://objccn.io/issue-3-1/" target="_blank" rel="external">绘制像素到屏幕上</a></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">至于导致内存暴增、卡顿、crash的原因，这就涉及渲染原理（ 可参考上面链接</div><div class="line">这里简单说一下加载一张本地图片过程：</div><div class="line">1.首先读取本地图片资源、会从磁盘拷贝图片数据到缓冲区里，再而复制数据到用户空间</div><div class="line"></div><div class="line">2.把图像数据交给UIImageView</div><div class="line"></div><div class="line">3.解码、转为位图数据</div><div class="line"></div><div class="line">4.CATransaction提交数据</div><div class="line"></div><div class="line">5.最后由GPU进行渲染</div><div class="line"></div><div class="line">（当然详细的具体过程还有很多）</div><div class="line"></div><div class="line">所以通过这样一系列的处理，损耗的内存非常大。</div><div class="line">如下图所示：大部分工作都在ImageIO（读取写入图片）上。</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/692ecdb9gy1g2022hx7ukj20th04jtag.jpg" alt=""></p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><pre><code>遇到问题，那么我Google搜索关键词查找相关的资料
+得到有以上两个方案
+</code></pre><h4 id="苹果官方提供的方案-amp-Demo"><a href="#苹果官方提供的方案-amp-Demo" class="headerlink" title="苹果官方提供的方案 &amp; Demo"></a>苹果官方提供的方案 &amp; Demo</h4><p><a href="https://developer.apple.com/library/archive/samplecode/LargeImageDownsizing/Introduction/Intro.html#//apple_ref/doc/uid/DTS40011173-Intro-DontLinkElementID_2" target="_blank" rel="external">参考链接-apple官方demo</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">苹果提供demo的方案主要是</div><div class="line">1.把图片缩小</div><div class="line">2.利用CGBitmapContextCreate分块绘制 （ 拆分多块内存</div><div class="line">3.CGContextRef合成图片、最后才加载</div><div class="line">（部分代码如下图</div><div class="line"></div><div class="line"></div><div class="line">苹果提供的方案同时也使用到CATiledLayer来渲染</div><div class="line">不过苹果提供的这个demo,加载200MB的图片</div><div class="line">峰值虽然降下来了，但还是达到100Mb以上。</div></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">  <span class="comment">// iterations ： 获取（计算）分块的数量</span></div><div class="line">  <span class="keyword">int</span> iterations = (<span class="keyword">int</span>)( sourceResolution.height / sourceTile.size.height);</div><div class="line"></div><div class="line">  <span class="keyword">int</span> remainder = (<span class="keyword">int</span>)sourceResolution.height % (<span class="keyword">int</span>)sourceTile.size.height;</div><div class="line">  <span class="keyword">if</span>( remainder ) iterations++;</div><div class="line">  <span class="keyword">float</span> sourceTileHeightMinusOverlap = sourceTile.size.height;</div><div class="line">  sourceTile.size.height += sourceSeemOverlap;</div><div class="line">  destTile.size.height += destSeemOverlap;    </div><div class="line"></div><div class="line"><span class="comment">// 遍历，分块加载</span></div><div class="line">  <span class="keyword">for</span>( <span class="keyword">int</span> y = <span class="number">0</span>; y &lt; iterations; ++y ) &#123;</div><div class="line">      <span class="built_in">NSAutoreleasePool</span>* pool2 = [[<span class="built_in">NSAutoreleasePool</span> alloc] init];</div><div class="line">      <span class="built_in">NSLog</span>(<span class="string">@"iteration %d of %d"</span>,y+<span class="number">1</span>,iterations);</div><div class="line">      </div><div class="line">      <span class="comment">// 每一块的大小和位置</span></div><div class="line">      sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap; </div><div class="line">      destTile.origin.y = ( destResolution.height ) - ( ( y + <span class="number">1</span> ) * sourceTileHeightMinusOverlap * imageScale + destSeemOverlap ); </div><div class="line">      sourceTileImageRef = <span class="built_in">CGImageCreateWithImageInRect</span>( sourceImage.CGImage, sourceTile );</div><div class="line">          </div><div class="line">      <span class="keyword">if</span>( y == iterations - <span class="number">1</span> &amp;&amp; remainder ) &#123;</div><div class="line">          <span class="keyword">float</span> dify = destTile.size.height;</div><div class="line">          destTile.size.height = <span class="built_in">CGImageGetHeight</span>( sourceTileImageRef ) * imageScale;</div><div class="line">          dify -= destTile.size.height;</div><div class="line">          destTile.origin.y += dify;</div><div class="line">      &#125;</div><div class="line">      </div><div class="line">      <span class="comment">// 保存到 destContext 上下文中</span></div><div class="line">      <span class="built_in">CGContextDrawImage</span>( destContext, destTile, sourceTileImageRef );</div><div class="line"></div><div class="line">      <span class="built_in">CGImageRelease</span>( sourceTileImageRef ); </div><div class="line"></div><div class="line">      [sourceImage release];</div><div class="line">      </div><div class="line">      <span class="comment">// 加载完毕，显示    </span></div><div class="line">      <span class="keyword">if</span>( y &lt; iterations - <span class="number">1</span> ) &#123;            </div><div class="line">              sourceImage = [[<span class="built_in">UIImage</span> alloc] initWithContentsOfFile:[[<span class="built_in">NSBundle</span> mainBundle] pathForResource:kImageFilenameTest2 ofType:<span class="literal">nil</span>]];</div><div class="line">          [<span class="keyword">self</span> performSelectorOnMainThread:<span class="keyword">@selector</span>(updateScrollView:) withObject:<span class="literal">nil</span> waitUntilDone:<span class="literal">YES</span>];</div><div class="line">      &#125;</div><div class="line">  &#125;</div><div class="line">  </div><div class="line">  <span class="comment">// 从上下文读取/创建 图片 </span></div><div class="line">  -(<span class="keyword">void</span>)createImageFromContext &#123;</div><div class="line">      <span class="comment">// create a CGImage from the offscreen image context</span></div><div class="line">      <span class="built_in">CGImageRef</span> destImageRef = <span class="built_in">CGBitmapContextCreateImage</span>( destContext );</div><div class="line">      <span class="keyword">if</span>( destImageRef == <span class="literal">NULL</span> ) <span class="built_in">NSLog</span>(<span class="string">@"destImageRef is null."</span>);</div><div class="line">      <span class="comment">// wrap a UIImage around the CGImage</span></div><div class="line">      <span class="keyword">self</span>.destImage = [<span class="built_in">UIImage</span> imageWithCGImage:destImageRef scale:<span class="number">1.0</span>f orientation:<span class="built_in">UIImageOrientationDownMirrored</span>];</div><div class="line">      <span class="comment">// release ownership of the CGImage, since destImage retains ownership of the object now.</span></div><div class="line">      <span class="built_in">CGImageRelease</span>( destImageRef );</div><div class="line">      <span class="keyword">if</span>( destImage == <span class="literal">nil</span> ) <span class="built_in">NSLog</span>(<span class="string">@"destImage is nil."</span>);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<h4 id="CATiledLayer"><a href="#CATiledLayer" class="headerlink" title="CATiledLayer"></a>CATiledLayer</h4><ul>
+<li><p><a href="https://developer.apple.com/documentation/quartzcore/catiledlayer?language=objc" target="_blank" rel="external">CATiledLayer介绍</a></p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">关于CATiledLayer的介绍，从Google搜索资料并不多。</div><div class="line">根据介绍，可知：</div><div class="line">1.CATiledLayer存在于Core Animation框架中.</div><div class="line">2.继承于CALayer</div><div class="line">3.是一个异步加载提供内存切片的图层。</div><div class="line"></div><div class="line">相关属性：</div><div class="line">levelsOfDetail： </div><div class="line">The number of levels of detail maintained by this layer.</div><div class="line">图层缩小层级系数。 </div><div class="line">（默认值为1</div><div class="line"></div><div class="line">levelsOfDetailBias： The number of magnified levels of detail for this layer.</div><div class="line">图层放大层级系数。</div><div class="line">（默认为0</div><div class="line"></div><div class="line">tileSize：The maximum size of each tile used to create the layer&apos;s content.</div><div class="line">每个分块tile最大尺寸（size</div><div class="line">(默认256x256</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>具体使用<br><a href="https://zhuanlan.zhihu.com/p/31323034" target="_blank" rel="external">参考：iOS 超大高清图展示策略TileLayer及levelsOfDetailBias分析</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">CATiledLayer的使用也非常简单。</div><div class="line"></div><div class="line">1. 创建一个自定义view,将图层设置为 CATiledLayer</div><div class="line">2. 传入源图片、scale ( scale用于设置实际显示frame</div><div class="line">3. 设置 CATiledLayer 相关参数</div><div class="line">4. 利用drawRect: 截取图片、绘制渲染</div><div class="line"></div><div class="line">（具体可参考以上的链接，以及一些参数的配置）</div><div class="line">（具体代码如下</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>具体CATiledLayer实现代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"> <span class="meta">#pragma mark - MyTiledImageView</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">MyTiledImageView</span> ()</span></div><div class="line"><span class="comment">/** 源图片 */</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIImage</span> *sourceImage;</div><div class="line"><span class="comment">/** 源图片与实际显示的scale */</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>) <span class="built_in">CGFloat</span> imageScale;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MyTiledImageView</span></span></div><div class="line"></div><div class="line"><span class="comment">// 将图层设置为 CATiledLayer</span></div><div class="line">+ (Class)layerClass &#123;</div><div class="line">    <span class="keyword">return</span> [<span class="built_in">CATiledLayer</span> <span class="keyword">class</span>];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">instancetype</span>)initWithFrame:(<span class="built_in">CGRect</span>)frame image:(<span class="built_in">UIImage</span>*)image scale:(<span class="built_in">CGFloat</span>)scale &#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span> == [<span class="keyword">super</span> initWithFrame:frame]) &#123;</div><div class="line">        </div><div class="line">        <span class="keyword">self</span>.sourceImage = image; <span class="comment">// 原图片</span></div><div class="line">        <span class="keyword">self</span>.imageScale = scale; <span class="comment">// 实际显示的scale</span></div><div class="line">        </div><div class="line">        <span class="comment">// 关键代码</span></div><div class="line">        <span class="built_in">CATiledLayer</span> *tiledLayer = (<span class="built_in">CATiledLayer</span> *)[<span class="keyword">self</span> layer];</div><div class="line">        </div><div class="line">        tiledLayer.levelsOfDetail = <span class="number">1</span>; <span class="comment">// 图层缩小层级系数。</span></div><div class="line">        tiledLayer.levelsOfDetailBias = <span class="number">8</span>; <span class="comment">//  图层放大层级系数。</span></div><div class="line">        tiledLayer.tileSize = <span class="built_in">CGSizeMake</span>(<span class="number">150.0</span>f, <span class="number">150.0</span>f); <span class="comment">//  每个分块tile最大尺寸 默认256x256</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)drawRect:(<span class="built_in">CGRect</span>)rect &#123;</div><div class="line">    <span class="comment">// 将视图frame映射到实际图片的frame</span></div><div class="line">    <span class="built_in">CGRect</span> rec = <span class="built_in">CGRectMake</span>(</div><div class="line">                            rect.origin.x / <span class="keyword">self</span>.imageScale,</div><div class="line">                            rect.origin.y / <span class="keyword">self</span>.imageScale,</div><div class="line">                            rect.size.width / <span class="keyword">self</span>.imageScale,</div><div class="line">                            rect.size.height / <span class="keyword">self</span>.imageScale</div><div class="line">                            );</div><div class="line">    </div><div class="line">    <span class="comment">// 截取指定图片区域，重绘</span></div><div class="line">    <span class="built_in">CGImageRef</span> cropImg = <span class="built_in">CGImageCreateWithImageInRect</span>(<span class="keyword">self</span>.sourceImage.CGImage, rec);</div><div class="line">    <span class="built_in">UIImage</span> *tileImg = [<span class="built_in">UIImage</span> imageWithCGImage:cropImg];</div><div class="line">    [tileImg drawInRect:rect];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li>测试情况</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">测试环境：</div><div class="line">macOS版本：10.14.1</div><div class="line">Xcode版本：10.1</div><div class="line">模拟器版本：XR 12.1</div><div class="line"></div><div class="line">峰值在50~80之间。</div><div class="line"></div><div class="line">主要和CATiledLayer的tileSize </div><div class="line">、levelsOfDetailBias、levelsOfDetail相关）</div><div class="line"></div><div class="line">可根据实际情况来设置具体的值来减少峰值，或者测试样本。</div></pre></td></tr></table></figure>
+<p><a href="">demo-待续</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/16/关于屏幕渲染过程 、UITableView性能优化/" rel="next" title="关于屏幕渲染过程 、UITableView性能优化">
+                <i class="fa fa-chevron-left"></i> 关于屏幕渲染过程 、UITableView性能优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="zengyijie_" />
+          <p class="site-author-name" itemprop="name">zengyijie_</p>
+          <p class="site-description motion-element" itemprop="description">a iOS Developer</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前期准备"><span class="nav-number">1.</span> <span class="nav-text">前期准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遇到问题-amp-原因"><span class="nav-number">2.</span> <span class="nav-text">遇到问题&原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#苹果官方提供的方案-amp-Demo"><span class="nav-number">3.0.1.</span> <span class="nav-text">苹果官方提供的方案 & Demo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CATiledLayer"><span class="nav-number">3.0.2.</span> <span class="nav-text">CATiledLayer</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zengyijie_</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
